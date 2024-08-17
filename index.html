@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador Léxico - Taller de Compiladores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        input,
+        button {
+            margin: 10px 0;
+        }
+        
+        #result {
+            margin-top: 20px;
+        }
+        
+        .token {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Proyecto Taller de Compiladores</h1>
+    <h2>Analizador Léxico</h2>
+    <p>Introduce un texto para analizar:</p>
+    <input type="text" id="inputText" placeholder="Escribe aquí...">
+    <button onclick="analyze()">Analizar</button>
+
+    <div id="result"></div>
+
+    <script>
+        const keywords = {
+            "if": 19,
+            "while": 20,
+            "return": 21,
+            "else": 22,
+            "int": 4,
+            "float": 4,
+        };
+
+        const tokenTypes = {
+            "identificador": 0,
+            "entero": 1,
+            "real": 2,
+            "opSuma": 5,
+            "opMul": 6,
+            "opRelac": 7,
+            "opOr": 8,
+            "opAnd": 9,
+            "opNot": 10,
+            "opIgualdad": 11,
+            "puntoYComa": 12,
+            "coma": 13,
+            "parentesisIzq": 14,
+            "parentesisDer": 15,
+            "llaveIzq": 16,
+            "llaveDer": 17,
+            "asignacion": 18,
+        };
+
+        function isIdentifier(token) {
+            return /^[a-zA-Z][a-zA-Z0-9]*$/.test(token) && !(token in keywords);
+        }
+
+        function isInteger(token) {
+            return /^\d+$/.test(token);
+        }
+
+        function isRealNumber(token) {
+            return /^\d+\.\d+$/.test(token);
+        }
+
+        function isOperator(token) {
+            const operators = {
+                "+": "opSuma",
+                "-": "opSuma",
+                "*": "opMul",
+                "/": "opMul",
+                "=": "asignacion",
+                "==": "opIgualdad",
+                "!=": "opIgualdad",
+                "<": "opRelac",
+                "<=": "opRelac",
+                ">": "opRelac",
+                ">=": "opRelac",
+                "&&": "opAnd",
+                "||": "opOr",
+                "!": "opNot"
+            };
+            return operators[token] || null;
+        }
+
+        function isPunctuation(token) {
+            const punctuations = {
+                ";": "puntoYComa",
+                ",": "coma",
+                "(": "parentesisIzq",
+                ")": "parentesisDer",
+                "{": "llaveIzq",
+                "}": "llaveDer"
+            };
+            return punctuations[token] || null;
+        }
+
+        function analyze() {
+            const inputText = document.getElementById('inputText').value.trim();
+            const tokens = inputText.split(/\s+/);
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            tokens.forEach(token => {
+                let tokenType;
+
+                if (token in keywords) {
+                    tokenType = `Palabra Reservada (${keywords[token]}): ${token}`;
+                } else if (isIdentifier(token)) {
+                    tokenType = `Identificador (${tokenTypes["identificador"]}): ${token}`;
+                } else if (isInteger(token)) {
+                    tokenType = `Entero (${tokenTypes["entero"]}): ${token}`;
+                } else if (isRealNumber(token)) {
+                    tokenType = `Número Real (${tokenTypes["real"]}): ${token}`;
+                } else if (isOperator(token)) {
+                    tokenType = `Operador (${tokenTypes[isOperator(token)]}): ${token}`;
+                } else if (isPunctuation(token)) {
+                    tokenType = `Puntuación (${tokenTypes[isPunctuation(token)]}): ${token}`;
+                } else {
+                    tokenType = `Token no reconocido: ${token}`;
+                }
+
+                resultDiv.innerHTML += `<div class="token">${tokenType}</div>`;
+            });
+        }
+    </script>
+</body>
+
+</html>
